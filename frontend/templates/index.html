@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Image Blur Target Detection</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='bootstrap.min.css') }}"
+    />
+    <style>
+      .image-preview {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+      }
+      .blur-target-table {
+        width: 100%;
+        margin-top: 20px;
+        max-height: 150px;
+        overflow-y: scroll;
+        display: block;
+      }
+      .blur-target-table th,
+      .blur-target-table td {
+        padding: 10px;
+        text-align: left;
+      }
+      .container {
+        display: flex;
+        flex-direction: row;
+        padding: 20px;
+      }
+      .left-panel,
+      .right-panel {
+        flex: 1;
+        padding: 20px;
+      }
+      .left-panel {
+        border-right: 1px solid #ccc;
+      }
+      .header {
+        text-align: center;
+        padding: 20px;
+        border-bottom: 1px solid #ccc;
+      }
+      .placeholder-container {
+        position: relative;
+        text-align: center;
+      }
+      .placeholder-image {
+        width: 100%;
+        height: auto;
+        opacity: 0.5;
+      }
+      .upload-label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(255, 255, 255, 0.7);
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .upload-label:hover {
+        background-color: rgba(255, 255, 255, 0.9);
+      }
+      input[type="file"] {
+        display: none;
+      }
+      .form-control-prompt {
+        width: 90%;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Image Blur Target Detection</h1>
+    </div>
+    <div class="container">
+      <div class="left-panel">
+        <div class="placeholder-container mt-5">
+          {% if image_url %}
+          <img
+            src="{{ url_for('static', filename=image_url) }}"
+            class="image-preview"
+          />
+          {% else %}
+          <img
+            src="{{ url_for('static', filename='placeholder.png') }}"
+            class="placeholder-image"
+          />
+          <label for="file" class="upload-label">Upload Image</label>
+          <input
+            type="file"
+            id="file"
+            name="file"
+            class="form-control-file"
+            onchange="document.getElementById('imageForm').submit();"
+          />
+          {% endif %}
+        </div>
+        <form
+          action="{{ url_for('index') }}"
+          method="POST"
+          enctype="multipart/form-data"
+          id="imageForm"
+        >
+          {{ form.hidden_tag() }}
+        </form>
+      </div>
+      <div class="right-panel">
+        <h3>Prompt</h3>
+        <form action="{{ url_for('index') }}" method="POST">
+          {{ form.hidden_tag() }}
+          <div class="form-group">
+            {{ form.prompt(class="form-control form-control-prompt") }}
+          </div>
+          <div class="form-group">
+            {{ form.submit(class="btn btn-primary mt-3") }}
+          </div>
+        </form>
+        {% if blur_targets %}
+        <div class="mt-5">
+          <h3>Blur Targets</h3>
+          <table class="blur-target-table table table-bordered">
+            <thead>
+              <tr>
+                <th>Blur Target</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="blur-targets">
+              {% for target in blur_targets %}
+              <tr>
+                <td>{{ target }}</td>
+                <td>
+                  <button
+                    class="btn btn-danger"
+                    onclick="removeTarget({{ loop.index0 }})"
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %} {% if user_response %}
+        <div class="mt-5">
+          <h3>LLM Response</h3>
+          <p>{{ user_response }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <script>
+      function removeTarget(index) {
+        fetch("/remove_target", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ index: index }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            let tbody = document.getElementById("blur-targets");
+            tbody.innerHTML = "";
+            data.forEach((target, i) => {
+              let row = tbody.insertRow();
+              let cell1 = row.insertCell(0);
+              let cell2 = row.insertCell(1);
+              cell1.textContent = target;
+              let btn = document.createElement("button");
+              btn.className = "btn btn-danger";
+              btn.textContent = "Remove";
+              btn.setAttribute("onclick", `removeTarget(${i})`);
+              cell2.appendChild(btn);
+            });
+          });
+      }
+
+      document.getElementById("file").addEventListener("change", function () {
+        document.getElementById("imageForm").submit();
+      });
+    </script>
+  </body>
+</html>

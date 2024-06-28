@@ -1,0 +1,10 @@
+{
+    "komei01": {
+        "prompt": "describe in one brief sentence the areas of the image that need to be kept private for segmentation",
+        "answer": "The faces of the individuals need to be kept private for segmentation."
+    },
+    "car.jpeg": {
+        "prompt": "describe in one brief sentence the areas of the image that need to be kept private for segmentation",
+        "answer": "In the image, the license plates of the cars should be kept private for segmentation."
+    }
+}
