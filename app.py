@@ -57,7 +57,7 @@ def demo():
     elif request.method == "GET":
         output_path = "static/outputs/sample.jpg"
         session_id = "sample"
-        label_list = [["face", "0.4"], ["face", "0.2"]]
+        label_list = [["screen", "0.4"]]
         return render_template(
             "demo_result.html",
             image=output_path,

@@ -89,6 +89,31 @@ class aib:
         cv2.imwrite(save_path, result)
         return
 
+    def blur_image(
+        self,
+        image_path,
+        mask_path,
+        blur_radius=30,
+        save_path="images/blurred_image.jpg",
+    ):
+        image = cv2.imread(image_path)
+        mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        _, binary_mask = cv2.threshold(
+            mask, 127, 255, cv2.THRESH_BINARY
+        )  # マスクを2値化する
+        blurred_image = cv2.GaussianBlur(
+            image, (23, 23), blur_radius
+        )  # ぼかし処理を適用
+        blurred_area = cv2.bitwise_and(
+            blurred_image, blurred_image, mask=binary_mask
+        )  # ぼかし領域をマスクで選択
+        inverse_mask = cv2.bitwise_not(binary_mask)  # マスクの反転を作成
+        original_area = cv2.bitwise_and(
+            image, image, mask=inverse_mask
+        )  # 元の画像のマスク外領域を選択
+        final_image = cv2.add(blurred_area, original_area)  # ぼかし領域と元の領域を合成
+        cv2.imwrite(save_path, final_image)  # ぼかした画像を保存する場合
+
     def gsam_api(self, image_path, text_prompt, save_path="images/mask.jpg"):
         """
         image_path: Path to the image file
@@ -119,16 +144,20 @@ class aib:
         img = Image.open(image_path)
         result = self.model.generate_content([prompt, img])
 
+        # return result.text
+
         result_list = eval(result.text)
         # tuple型だったら，"this photo shows ... and ..."の形にする
         if type(result_list) == tuple:
-            result_str = "this photo shows "
+            # 重複があれば削除
+            result_list = list(set(result_list))
+            result_str = ""
             length = len(result_list)
             for i, r in enumerate(result_list):
                 result_str += r
                 if i != length - 1:
                     result_str += " and "
-            result_str += "."
+            print(result_str)
 
         else:
             result_str = result.text
@@ -147,13 +176,15 @@ class aib:
             assistant,
             self.mask_path,
         )
-        self.mosaic_image(self.upload_path, self.mask_path, save_path=self.output_path)
+        # self.mosaic_image(self.upload_path, self.mask_path, save_path=self.output_path)
+        self.blur_image(self.upload_path, self.mask_path, save_path=self.output_path)
         return self.session_id, self.output_path, self.mask_labels
 
     def fix(self, prompt, mask_labels: list[list[str]]):
         new_labels = self.gsam_api(self.output_path, prompt, self.mask_path)
         self.mask_labels = mask_labels + new_labels
-        self.mosaic_image(self.output_path, self.mask_path, save_path=self.output_path)
+        # self.mosaic_image(self.output_path, self.mask_path, save_path=self.output_path)
+        self.blur_image(self.output_path, self.mask_path, save_path=self.output_path)
         return self.session_id, self.output_path, self.mask_labels
 
     def __del__(self):
