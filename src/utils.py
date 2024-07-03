@@ -118,8 +118,22 @@ class aib:
     def gemini_api(self, image_path, prompt):
         img = Image.open(image_path)
         result = self.model.generate_content([prompt, img])
-        print(result.text)
-        return result.text
+
+        result_list = eval(result.text)
+        # tuple型だったら，"this photo shows ... and ..."の形にする
+        if type(result_list) == tuple:
+            result_str = "this photo shows "
+            length = len(result_list)
+            for i, r in enumerate(result_list):
+                result_str += r
+                if i != length - 1:
+                    result_str += " and "
+            result_str += "."
+
+        else:
+            result_str = result.text
+
+        return result_str
 
     def all(self, img_file):
         img = Image.open(img_file)
