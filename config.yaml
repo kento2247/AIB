@@ -1,0 +1,7 @@
+# init_prompt: List the areas of the image that need to be kept private for segmentation. Just respond with area names, e.g., \"'face', 'license plate'\".
+init_prompt: List the areas of the image that need to be kept private for segmentation.
+upload_folder: images/uploads
+mask_folder: images/masks
+output_folder: static/outputs
+
+gsam_api_url: http://172.18.102.33:5000/segment

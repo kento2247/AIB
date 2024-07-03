@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ session_id }}</title>
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .result-image {
+        width: 50%;
+        height: auto;
+        margin-top: 10px;
+      }
+      .result-container {
+        text-align: center;
+        margin-top: 10px;
+      }
+      .prompt-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .prompt-input {
+        width: 80%;
+        margin-right: 10px;
+        resize: vertical;
+        word-wrap: break-word;
+      }
+      .submit-button {
+        width: 15%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center mt-5">{{ session_id }}</h1>
+      <div class="result-container">
+        <form
+          id="promptForm"
+          action="/demo"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <div class="prompt-container">
+            <textarea
+              class="form-control prompt-input"
+              name="prompt"
+              placeholder="Enter Object name here. (e.g. 'face, hair, accessories')"
+              id="promptInput"
+              rows="2"
+            ></textarea>
+            <button
+              type="submit"
+              class="btn btn-primary submit-button"
+              id="submitPromptButton"
+            >
+              Submit
+            </button>
+          </div>
+          <input type="hidden" name="session_id" value="{{ session_id }}" />
+          <input type="hidden" name="label_list" value="{{ label_list }}" />
+        </form>
+        <h2 class="mt-5">Detected Labels</h2>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Label</th>
+              <th>Pred Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for label, score in label_list %}
+            <tr>
+              <td>{{ label }}</td>
+              <td>{{ score }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <img
+          id="resultImage"
+          src="{{ image }}"
+          class="result-image"
+          alt="Result Image"
+        />
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
+</html>
