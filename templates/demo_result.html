@@ -2,13 +2,14 @@
 <html>
   <head>
     <title>{{ session_id }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
     />
     <style>
       .result-image {
-        width: 50%;
+        width: 100%;
         height: auto;
         margin-top: 10px;
       }
@@ -18,17 +19,18 @@
       }
       .prompt-container {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         margin-bottom: 10px;
       }
       .prompt-input {
-        width: 80%;
+        flex: 1;
         margin-right: 10px;
         resize: vertical;
         word-wrap: break-word;
       }
       .submit-button {
-        width: 15%;
+        flex: 0 0 auto;
       }
     </style>
   </head>

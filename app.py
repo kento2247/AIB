@@ -55,9 +55,9 @@ def demo():
                 label_list=label_list,
             )
     elif request.method == "GET":
-        output_path = "static/outputs/sample.jpg"
+        output_path = "static/outputs/sample.jpeg"
         session_id = "sample"
-        label_list = [["screen", "0.4"]]
+        label_list = [["face", "0.6"], ["face", "0.5"], ["screen", "0.4"]]
         return render_template(
             "demo_result.html",
             image=output_path,
@@ -67,4 +67,4 @@ def demo():
 
 
 if __name__ == "__main__":
-    app.run(port=3000)
+    app.run(host="0.0.0.0", port=3000, debug=True)
